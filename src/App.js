@@ -10,6 +10,7 @@ import PropsDiff from './components/PropsDiff'
 import Hooks from "./components/Hooks";
 import EventDemo from "./components/EventDemo";
 import JSX from './components/JSX';
+import Test from './components/testGetDerivedLifeCycle';
 import ContextDemo from "./components/Context";
 
 import { BrowserRouter as Router , useHistory,Switch } from 'react-router-dom'
@@ -29,6 +30,10 @@ const menusList = [
     path: '/jsx',
     component:JSX
   },
+  {name:'test',
+  path:'/test',
+  component:Test
+  }
 ]
 
 function Meuns(){

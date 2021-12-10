@@ -767,6 +767,7 @@ function callComponentWillReceiveProps(
 }
 
 // Invokes the mount life-cycles on a previously never rendered instance.
+// 触发mount阶段的一些生命周期钩子函数 包括 ----- 1.getDerivedStateFromProps ==> componentWillMount
 function mountClassInstance(
   workInProgress: Fiber,
   ctor: any,
@@ -856,7 +857,7 @@ function mountClassInstance(
     );
     instance.state = workInProgress.memoizedState;
   }
-
+  // 如果组件的componentDidMount是一个函数，就需要给该fiber打上Update的effectTag标签。
   if (typeof instance.componentDidMount === 'function') {
     workInProgress.effectTag |= Update;
   }

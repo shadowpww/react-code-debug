@@ -34,3 +34,6 @@
   display: flex;
   text-decoration: underline;
 }
+.routerLink{
+  margin: 0 20px;
+}
