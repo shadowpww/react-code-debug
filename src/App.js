@@ -9,7 +9,11 @@ import Diff from './components/Diff'
 import PropsDiff from './components/PropsDiff'
 import Hooks from "./components/Hooks";
 import EventDemo from "./components/EventDemo";
+import JSX from './components/JSX';
 import ContextDemo from "./components/Context";
+
+import { BrowserRouter as Router , useHistory,Switch } from 'react-router-dom'
+import { renderRoutes } from 'react-router-config'
 import './App.css';
 
 // propsDiff
@@ -18,6 +22,25 @@ import './App.css';
     return <PropsDiff/>
   }
 }*/
+
+const menusList = [
+  {
+    name: '1.JSX',
+    path: '/jsx',
+    component:JSX
+  },
+]
+
+function Meuns(){
+  const history = useHistory()
+   return <div className="theStyle" >
+   {menusList.map(item=><span className="routerLink"
+       key={item.path}
+       onClick={()=> {  history.push(item.path) }}
+                        >{item.name}</span>)}
+  </div>
+}
+
 function App() {
 
   // 事件系统
@@ -39,10 +62,19 @@ function App() {
   // return <TasksWithDifferentPriorities/>
 
   // context
-  return <ContextDemo/>
+  // return <ContextDemo/>
 
   // diff 算法
   // return <Diff ref={'diffRef'}/>
+
+  return <div style={{padding:30}}> <Router  >
+  <Meuns/>
+  <Switch>
+  <div style={{ paddingTop:'50px' }} >
+      {renderRoutes(menusList)}
+  </div>
+  </Switch>
+</Router></div>
 }
 
 export default App;

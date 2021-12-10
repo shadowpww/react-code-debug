@@ -195,7 +195,7 @@ const ReactElement = function(type, key, ref, self, source, owner, props) {
       Object.freeze(element);
     }
   }
-
+  debugger;
   return element;
 };
 

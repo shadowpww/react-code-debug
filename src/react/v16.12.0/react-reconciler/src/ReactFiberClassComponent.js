@@ -584,7 +584,7 @@ function constructClassInstance(
   }
 
   if (typeof contextType === 'object' && contextType !== null) {
-    context = readContext((contextType: any));
+    context = readContext((contextType: any));  //读取conTextType对应的context的value。
   } else if (!disableLegacyContext) {
     unmaskedContext = getUnmaskedContext(workInProgress, ctor, true);
     const contextTypes = ctor.contextTypes;
@@ -604,12 +604,14 @@ function constructClassInstance(
       new ctor(props, context); // eslint-disable-line no-new
     }
   }
-
+  // class组件的contextType会被特殊处理， 通过readContext，拿到context的值后，会被加入class组件的dependecies中记录下（主要是会在context值变化后，根据dependencies中是否能匹配上，来决定该组件是否需要更新）。
+  // 此外还会作为class组件的constructor的第二个参数传入类组件的构造函数中
   const instance = new ctor(props, context);
   const state = (workInProgress.memoizedState =
     instance.state !== null && instance.state !== undefined
       ? instance.state
       : null);
+  // 类组件fiber的stateNode其实就是该类组件的实例对象
   adoptClassInstance(workInProgress, instance);
 
   if (__DEV__) {
