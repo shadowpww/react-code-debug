@@ -824,7 +824,8 @@ function updateClassComponent(
       // Since this is conceptually a new fiber, schedule a Placement effect
       workInProgress.effectTag |= Placement;
     }
-    // In the initial pass we might need to construct the instance.
+    // In the initial pass we might need to construct the instance.\
+    // 类组件的第一次挂在会走这里
     constructClassInstance(workInProgress, Component, nextProps);
     mountClassInstance(
       workInProgress,

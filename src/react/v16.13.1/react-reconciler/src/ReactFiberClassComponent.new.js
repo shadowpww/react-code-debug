@@ -816,7 +816,7 @@ function mountClassInstance(
       );
     }
   }
-
+  // 这一块主要是更新的处理
   processUpdateQueue(workInProgress, newProps, instance, renderLanes);
   instance.state = workInProgress.memoizedState;
 
@@ -1042,10 +1042,11 @@ function updateClassInstance(
     }
   }
 
-  resetHasForceUpdateBeforeProcessing();
+  resetHasForceUpdateBeforeProcessing();  // 重置forceUpdate为false， todo：为什么要重置。
 
-  const oldState = workInProgress.memoizedState;
-  let newState = (instance.state = oldState);
+  const oldState = workInProgress.memoizedState; // 上一次渲染后，最终的state的值
+  let newState = (instance.state = oldState); // 初始化
+  //处理更新队列
   processUpdateQueue(workInProgress, newProps, instance, renderLanes);
   newState = workInProgress.memoizedState;
 

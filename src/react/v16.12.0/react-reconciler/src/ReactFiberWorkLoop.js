@@ -411,7 +411,7 @@ export function scheduleUpdateOnFiber(
       // should be deferred until the end of the batch.
       performSyncWorkOnRoot(root);
     } else {
-      // 非初始化类型的更新任务，最终都会走到这个分支上来。
+      // 非初始化时的更新任务，最终都会走到这个分支上来。
       ensureRootIsScheduled(root);
       schedulePendingInteractions(root, expirationTime);
       if (executionContext === NoContext) {
@@ -466,6 +466,7 @@ function markUpdateTimeFromFiberToRoot(fiber, expirationTime) {
   let node = fiber.return;
   let root = null;
   if (node === null && fiber.tag === HostRoot) {
+    //  这个条件只有根节点fiberRoot 才符合。
     root = fiber.stateNode;
   } else {
     while (node !== null) {
@@ -1134,7 +1135,7 @@ function flushPendingDiscreteUpdates() {
   }
 }
 
-export function batchedUpdates<A, R>(fn: A => R, a: A): R {
+export function <A, R>(fn: A => R, a: A): R {
   const prevExecutionContext = executionContext;
   executionContext |= BatchedContext;
   try {
@@ -1727,7 +1728,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     // TODO: Might be better if `flushPassiveEffects` did not automatically
     // flush synchronous work at the end, to avoid factoring hazards like this.
     flushPassiveEffects();
-  } while (rootWithPendingPassiveEffects !== null);
+  } while (rootWithPendingPassiveEffects !== null); 
   flushRenderPhaseStrictModeWarningsInDEV();
 
   invariant(

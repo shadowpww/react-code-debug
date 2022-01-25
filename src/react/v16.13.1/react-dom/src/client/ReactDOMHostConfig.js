@@ -296,13 +296,16 @@ export function createInstance(
   } else {
     parentNamespace = ((hostContext: any): HostContextProd);
   }
+  //其实就是document.creatElement(type);
   const domElement: Instance = createElement(
     type,
     props,
     rootContainerInstance,
     parentNamespace,
   );
+  // 将fiber记录成dom节点上的一个属性
   precacheFiberNode(internalInstanceHandle, domElement);
+  // 将react上传入的props也记录在dom节点上
   updateFiberProps(domElement, props);
   return domElement;
 }

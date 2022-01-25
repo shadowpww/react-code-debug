@@ -693,8 +693,8 @@ function updateProfiler(
 function markRef(current: Fiber | null, workInProgress: Fiber) {
   const ref = workInProgress.ref;
   if (
-    (current === null && ref !== null) ||
-    (current !== null && current.ref !== ref)
+    (current === null && ref !== null) ||  // 初次挂载
+    (current !== null && current.ref !== ref) // 后续 ref发生了改变
   ) {
     // Schedule a Ref effect
     workInProgress.effectTag |= Ref;
@@ -3004,10 +3004,11 @@ function bailoutOnAlreadyFinishedWork(
     // Don't update "base" render times for bailouts.
     stopProfilerTimerIfRunning(workInProgress);
   }
-
+ //将所有跳过的lane记录在全局变量中。
   markSkippedUpdateLanes(workInProgress.lanes);
 
   // Check if the children have any pending work.
+  //判断是否子节点需要更新
   if (!includesSomeLane(renderLanes, workInProgress.childLanes)) {
     // The children don't have any work either. We can skip them.
     // TODO: Once we add back resuming, we should check if the children are
@@ -3317,7 +3318,7 @@ function beginWork(
           return updateOffscreenComponent(current, workInProgress, renderLanes);
         }
       }
-      // bailoutOnAlreadyFinishedWork 跳过已完成的fiber任务
+      // bailoutOnAlreadyFinishedWork 跳过优先级不够，暂时无需更新的节点
       return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
     } else {
       if ((current.effectTag & ForceUpdateForLegacySuspense) !== NoEffect) {
@@ -3347,7 +3348,7 @@ function beginWork(
   // sometimes bails out later in the begin phase. This indicates that we should
   // move this assignment out of the common path and into each branch.
   workInProgress.lanes = NoLanes;
-
+   // 走到这里时，说明该fiber确实需要更新，因此需要根据fiber类型来处理更新
   switch (workInProgress.tag) {
     case IndeterminateComponent: {
       return mountIndeterminateComponent(

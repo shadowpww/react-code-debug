@@ -455,6 +455,7 @@ export function requestUpdateLane(
     ) {
       lane = findUpdateLane(InputDiscreteLanePriority, currentEventWipLanes);
     } else {
+      //根据事件的优先级，来计算出更新的优先级。
       const lanePriority = schedulerPriorityToLanePriority(schedulerPriority);
       lane = findUpdateLane(lanePriority, currentEventWipLanes);
     }
@@ -472,7 +473,7 @@ export function scheduleUpdateOnFiber(
   // 判断是否是无限循环的update
   checkForNestedUpdates();
   warnAboutRenderPhaseUpdatesInDEV(fiber);
-  // 找到rootFiber并遍历更新子节点的优先级
+  // 从下往上，更新当前fiber到root路径上的所有节点的childLanes，并会将该优先级记录在root.pendingLanes上 
   const root = markUpdateLaneFromFiberToRoot(fiber, lane);
   console.log(root);
   console.log('root.pendingLanes：', root.pendingLanes);
@@ -542,6 +543,7 @@ export function scheduleUpdateOnFiber(
         rootsWithPendingDiscreteUpdates.add(root);
       }
     }
+    console.log('多次调用setState会走这里',lane);
     // Schedule other updates after in case the callback is sync.
     ensureRootIsScheduled(root, eventTime);
     schedulePendingInteractions(root, lane);
@@ -699,6 +701,8 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
   // 检查现有任务的渲染优先级
   const existingCallbackId = root.callbackId;
   const existingCallbackPriority = root.callbackPriority;
+  console.log('existingCallbackId',existingCallbackId,existingCallbackPriority);
+  console.log('newCallbackId',newCallbackId,newCallbackPriority);
   // console.log(newCallbackId, newCallbackPriority, existingCallbackId, existingCallbackPriority);
   if (existingCallbackId !== NoLanes) {
     if (newCallbackId === existingCallbackId) {
@@ -1749,7 +1753,7 @@ function completeUnitOfWork(unitOfWork: Fiber): void {
         workInProgress = next;
         return;
       }
-      // 收集WIP节点的lanes，不漏掉被跳过的update的lanes，便于再次发起调度
+      // 收集WIP节点的childLanes，不漏掉被跳过的update的lanes，便于再次发起调度
       resetChildLanes(completedWork);
 
       if (
@@ -1968,6 +1972,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     // no more pending effects.
     // TODO: Might be better if `flushPassiveEffects` did not automatically
     // flush synchronous work at the end, to avoid factoring hazards like this.
+    // 在执行新的渲染时，先执行一次effect
     flushPassiveEffects();
   } while (rootWithPendingPassiveEffects !== null);
   flushRenderPhaseStrictModeWarningsInDEV();
@@ -2071,7 +2076,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     // getSnapshotBeforeUpdate is called.
     focusedInstanceHandle = prepareForCommit(root.containerInfo);
     shouldFireAfterActiveInstanceBlur = false;
-
+    // before mutation  
     nextEffect = firstEffect;
     do {
       if (__DEV__) {
@@ -2104,7 +2109,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     }
 
     // The next phase is the mutation phase, where we mutate the host tree.
-    // 更新DOM阶段
+    // 更新DOM阶段 mutation阶段 针对HostComponent，进行相应的DOM操作；针对类组件，调用componentWillUnmount；针对函数组件，执行useLayoutEffect的销毁函数。
     nextEffect = firstEffect;
     do {
       if (__DEV__) {
@@ -2141,6 +2146,8 @@ function commitRootImpl(root, renderPriorityLevel) {
     // the mutation phase, so that the previous tree is still current during
     // componentWillUnmount, but before the layout phase, so that the finished
     // work is current during componentDidMount/Update.
+    
+    //将workInProgress树切换哼current树
     root.current = finishedWork;
 
     // The next phase is the layout phase, where we call effects that read
@@ -2381,6 +2388,7 @@ function commitMutationEffects(root: FiberRoot, renderPriorityLevel) {
       }
       case PlacementAndUpdate: {
         // Placement
+        // 找到最近的一个为host类型的父节点，插入成为该父节点的字节点
         commitPlacement(nextEffect);
         // Clear the "placement" from effect tag so that we know that this is
         // inserted, before any life-cycles like componentDidMount gets called.

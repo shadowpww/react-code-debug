@@ -780,6 +780,7 @@ function completeWork(
           appendAllChildren(instance, workInProgress, false, false);
 
           // This needs to be set before we mount Flare event listeners
+          // 原生HOST节点最终对应的dom会记录在fiber上的stateNode 属性上
           workInProgress.stateNode = instance;
 
           if (enableDeprecatedFlareAPI) {

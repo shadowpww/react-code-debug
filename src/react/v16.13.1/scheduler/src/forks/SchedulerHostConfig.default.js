@@ -197,7 +197,7 @@ if (
       yieldInterval = 5;
     }
   };
-
+ //浏览器下的任务调度是由该函数完成的。
   const performWorkUntilDeadline = () => {
     if (scheduledHostCallback !== null) {
       const currentTime = getCurrentTime();
@@ -206,7 +206,7 @@ if (
       // the message event.
       deadline = currentTime + yieldInterval;
       const hasTimeRemaining = true;
-      // scheduledHostCallback 为 flushWork
+      // scheduledHostCallback 为 flushWork ，在还有剩余任务时，会返回true， 因此会继续进行下一次任务调度，从而继续执行performWorkUntilDeadLine
       try {
         const hasMoreWork = scheduledHostCallback(
           hasTimeRemaining,

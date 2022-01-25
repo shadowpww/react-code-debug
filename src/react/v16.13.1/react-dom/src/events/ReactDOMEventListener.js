@@ -94,6 +94,7 @@ export function createEventListenerWrapperWithPriority(
   eventSystemFlags: EventSystemFlags,
   priority?: EventPriority,
 ): Function {
+  // 其实在complteWork 中国这里的priority根本未传入值，因此这里一定走getEventPriorityForPluginSystem根据事件类别，计算出一个优先级出来
   const eventPriority =
     priority === undefined
       ? getEventPriorityForPluginSystem(topLevelType)

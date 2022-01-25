@@ -184,6 +184,7 @@ function workLoop(hasTimeRemaining, initialTime) {
       currentPriorityLevel = currentTask.priorityLevel;
       const didUserCallbackTimeout = currentTask.expirationTime <= currentTime;
       markTaskRun(currentTask, currentTime);
+      // 最终任务的调度的执行是在这里执行的。
       const continuationCallback = callback(didUserCallbackTimeout);
       currentTime = getCurrentTime();
       if (typeof continuationCallback === 'function') {
@@ -337,10 +338,10 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
   // 如果是延迟任务则将 newTask 放入延迟调度队列并执行 requestHostTimeout
   // 如果是正常任务则将 newTask 放入正常调度队列并执行 requestHostCallback
   if (startTime > currentTime) {
-    // This is a delayed task.
+    // This is a delayed task. 延时任务的排序时根据开始时间进行的。，开始时间越早，说明越紧急
     newTask.sortIndex = startTime;
     push(timerQueue, newTask);
-    if (peek(taskQueue) === null && newTask === peek(timerQueue)) {
+    if (peek(taskQueue) === null && newTask === peek(timerQueue)) { //正常调度队列为空，且当前任务是延迟调度任务里面优先级最高的。
       // All tasks are delayed, and this is the task with the earliest delay.
       if (isHostTimeoutScheduled) {
         // Cancel an existing timeout.
@@ -349,6 +350,7 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
         isHostTimeoutScheduled = true;
       }
       // Schedule a timeout.
+      //启用一个宏任务来进行更新
       requestHostTimeout(handleTimeout, startTime - currentTime);
     }
   } else {
@@ -408,6 +410,7 @@ function unstable_cancelCallback(task) {
 }
 
 function unstable_getCurrentPriorityLevel() {
+  // currentPriorutyLevel 是当前schedule正在调度的任务的优先级
   return currentPriorityLevel;
 }
 

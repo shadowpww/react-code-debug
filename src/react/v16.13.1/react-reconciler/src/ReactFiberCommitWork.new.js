@@ -482,13 +482,13 @@ function commitLifeCycles(
         try {
           startLayoutEffectTimer();
           commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
-        } finally {
+        } finally { 
           recordLayoutEffectDuration(finishedWork);
         }
       } else {
         commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
       }
-
+      // 填充useEffect的destroy回调数组
       schedulePassiveEffects(finishedWork);
       return;
     }
@@ -1017,6 +1017,7 @@ function commitNestedUnmounts(
         return;
       }
       node = node.return;
+      // 向上回溯。
     }
     node.sibling.return = node.return;
     node = node.sibling;
@@ -1562,6 +1563,7 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
         const updatePayload: null | UpdatePayload = (finishedWork.updateQueue: any);
         finishedWork.updateQueue = null;
         if (updatePayload !== null) {
+          // 将complteWork中对比前后host节点找到的变化（存放在updatePayload中）,更新到DOM节点上
           commitUpdate(
             instance,
             updatePayload,

@@ -422,7 +422,6 @@ export function renderWithHooks<Props, SecondArg>(
         ? HooksDispatcherOnMount
         : HooksDispatcherOnUpdate;
   }
-
   let children = Component(props, secondArg);
 
   // Check if there was a render phase update
@@ -1252,7 +1251,7 @@ function mountEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
   const hook = mountWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   currentlyRenderingFiber.effectTag |= fiberEffectTag;
-  // 讲组件内的effect连成一个环，挂载到updateQueue中
+  // 将组件内的effect连成一个环，挂载到updateQueue中
   hook.memoizedState = pushEffect(
     HookHasEffect | hookEffectTag,
     create,

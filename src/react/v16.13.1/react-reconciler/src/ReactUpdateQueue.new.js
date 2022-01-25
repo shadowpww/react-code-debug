@@ -501,7 +501,8 @@ export function processUpdateQueue<State>(
   if (__DEV__) {
     currentlyProcessingQueue = queue.shared;
   }
-
+  // 遗留队列其实本质上，是由于优先级不足，在上一次render阶段并未处理的update操作。
+  // 这时候其实是需要放到重新render阶段时，仍然保证需要按照update的权重，依然按序处理。
   // 取出queue上的baseUpdate队列（下面称遗留的队列），
   // 等待接入本次新产生的更新队列（下面称新队列）
   let firstBaseUpdate = queue.firstBaseUpdate;
@@ -584,6 +585,7 @@ export function processUpdateQueue<State>(
     do {
       const updateLane = update.lane;
       const updateEventTime = update.eventTime;
+      console.log('innner+++++++',updateLane,update);
       // isSubsetOfLanes函数的意义是，判断当前更新的优先级（updateLane）
       // 是否在渲染优先级（renderLanes）中如果不在，那么就说明优先级不足
       if (!isSubsetOfLanes(renderLanes, updateLane)) {
@@ -591,11 +593,9 @@ export function processUpdateQueue<State>(
           eventTime: updateEventTime,
           lane: updateLane,
           suspenseConfig: update.suspenseConfig,
-
           tag: update.tag,
           payload: update.payload,
           callback: update.callback,
-
           next: null,
         };
         // 优先级不足，将update添加到本次的baseUpdate队列中
@@ -694,7 +694,8 @@ export function processUpdateQueue<State>(
     queue.baseState = ((newBaseState: any): State);
     queue.firstBaseUpdate = newFirstBaseUpdate;
     queue.lastBaseUpdate = newLastBaseUpdate;
-    markSkippedUpdateLanes(newLanes);
+    //将跳过的lane存储到fiber上，在ensureRootIsschedulerd方法中会重做低优先级的任务。 
+    markSkippedUpdateLanes(newLanes);  
     workInProgress.lanes = newLanes;
     workInProgress.memoizedState = newState;
   }

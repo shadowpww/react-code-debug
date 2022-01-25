@@ -849,7 +849,6 @@ function ChildReconciler(shouldTrackSideEffects) {
     let newIdx = 0;
     // 记录目前遍历到的旧fiber的下一个节点
     let nextOldFiber = null;
-
     // 该轮遍历来处理节点更新，依据节点是否可复用来决定是否中断遍历
     for (; oldFiber !== null && newIdx < newChildren.length; newIdx++) {
       // 新节点遍历完了，旧节点没有遍历完，此时需要中断遍历
@@ -940,7 +939,7 @@ function ChildReconciler(shouldTrackSideEffects) {
 
     // 继续遍历新子节点并且从map中找到被遍历到的当前节点在旧的fiber节点中的index，和lastPlacedIndex去比
     // 大于的话说明不用动，小于的话说明需要右移
-    for (; newIdx < newChildren.length; newIdx++) {
+    for (; newIdx < newChildren.length; newIdx++) { 
       // 基于map中的旧fiber节点来创建新fiber
       const newFiber = updateFromMap(
         existingChildren,
@@ -1205,6 +1204,7 @@ function ChildReconciler(shouldTrackSideEffects) {
         switch (child.tag) {
           case Fragment: {
             if (element.type === REACT_FRAGMENT_TYPE) {
+              // 其实本质上就是将剩下的fiber 添加到 父级fiber上的effectList中，并打上Delete 标记。 在commit阶段会执行effectList上的fiber
               deleteRemainingChildren(returnFiber, child.sibling);
               const existing = useFiber(child, element.props.children);
               existing.return = returnFiber;
@@ -1245,7 +1245,7 @@ function ChildReconciler(shouldTrackSideEffects) {
           // eslint-disable-next-lined no-fallthrough
           default: {
             if (
-              child.elementType === element.type ||
+              child.elementType === element.type || //只有类型相同时，才能复用fiber节点
               // Keep this check inline so it only runs on the false path:
               (__DEV__
                 ? isCompatibleFamilyForHotReloading(child, element)
@@ -1273,6 +1273,7 @@ function ChildReconciler(shouldTrackSideEffects) {
       child = child.sibling;
     }
 
+    // 走到这里说明，current树上并未找到能够复用的fiber节点。需要重新create新的fiber节点
     if (element.type === REACT_FRAGMENT_TYPE) {
       const created = createFiberFromFragment(
         element.props.children,

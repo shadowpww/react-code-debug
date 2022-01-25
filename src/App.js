@@ -12,6 +12,7 @@ import EventDemo from "./components/EventDemo";
 import JSX from './components/JSX';
 import Test from './components/testGetDerivedLifeCycle';
 import ContextDemo from "./components/Context";
+import LifeCycle from './components/LifeCycle';
 
 import { BrowserRouter as Router , useHistory,Switch } from 'react-router-dom'
 import { renderRoutes } from 'react-router-config'
@@ -33,6 +34,18 @@ const menusList = [
   {name:'test',
   path:'/test',
   component:Test
+  },
+  {name:'diff',
+  path:'/diff',
+  component:Diff
+  },
+  {name:'hooks',
+  path:'/hooks',
+  component:Hooks
+  },
+  {name:'LifeCycle',
+  path:'/LifeCycle',
+  component:LifeCycle
   }
 ]
 
