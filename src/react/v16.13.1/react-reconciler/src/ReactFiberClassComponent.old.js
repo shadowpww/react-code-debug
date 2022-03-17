@@ -204,6 +204,7 @@ const classComponentUpdater = {
     }
 
     enqueueUpdate(fiber, update);
+
     scheduleUpdateOnFiber(fiber, lane, eventTime);
 
     if (__DEV__) {

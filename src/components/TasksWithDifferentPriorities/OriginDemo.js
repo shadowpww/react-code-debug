@@ -10,8 +10,8 @@ class OriginDemo extends React.Component {
   }
   componentDidMount() {
     const button = this.buttonRef.current
-    setTimeout( () => this.setState( { count: 1 } ), 500 )
-    setTimeout( () => button.click(), 600)
+    console.log('========== 手动注入了不同更新优先级的setState');
+    setTimeout( () => {this.setState( { count: 1 } );button.click()}, 500 )
     //   A2是常规优先级的更新，A1是button.click()产生高优先级的更新。
     //   A后边的数字表示优先级，lane模型中，越小优先级越高，1 > 2。
     //   updateQueue：A2 - A1
@@ -37,6 +37,7 @@ class OriginDemo extends React.Component {
     return <div className={"origin-demo"}>
       <p>不需要点击这个按钮，这个按钮是交给js去模拟点击用的，模拟点击之后产生的是高优先级任务</p>
       <button ref={this.buttonRef} onClick={this.handleButtonClick}>增加2</button>
+      <div >{this.state.count}</div>
       <div>
         {Array.from(new Array(16000)).map( (v,index) =>
           <div key={index}>{this.state.count}</div>

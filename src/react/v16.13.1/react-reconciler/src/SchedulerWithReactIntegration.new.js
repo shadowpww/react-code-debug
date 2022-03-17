@@ -72,7 +72,7 @@ let immediateQueueCallbackNode: mixed | null = null;
 let isFlushingSyncQueue: boolean = false;
 const initialTimeMs: number = Scheduler_now();
 
-// If the initial timestamp is reasonably small, use Scheduler's `now` directly.
+// If the initiaxl timestamp is reasonably small, use Scheduler's `now` directly.
 // This will be the case for modern browsers that support `performance.now`. In
 // older browsers, Scheduler falls back to `Date.now`, which returns a Unix
 // timestamp. In that case, subtract the module initialization time to simulate
@@ -207,6 +207,7 @@ function flushSyncCallbackQueueImpl() {
     try {
       const isSync = true;
       const queue = syncQueue;
+      console.log('syncQueue',syncQueue);
       runWithPriority(ImmediatePriority, () => {
         for (; i < queue.length; i++) {
           // 这里的callback。就是 performSyncWorkOnRoot。

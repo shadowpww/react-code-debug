@@ -187,12 +187,13 @@ export function applyDerivedStateFromProps(
 const classComponentUpdater = {
   isMounted,
   enqueueSetState(inst, payload, callback) {
-    const fiber = getInstance(inst);
+    const fiber = getInstance(inst); 
     const eventTime = requestEventTime();
     const suspenseConfig = requestCurrentSuspenseConfig();
-    const lane = requestUpdateLane(fiber, suspenseConfig);
-
-    const update = createUpdate(eventTime, lane, suspenseConfig);
+    const lane = requestUpdateLane(fiber, suspenseConfig);// 根据事件优先级发返回一个lane
+    const update = createUpdate(eventTime, lane, suspenseConfig); // 将最终获取的lane存放在update对象在，在react一次更新过程中，每个fiber对象上的update都有机会被执行
+     // 而这个执行的判断方式就是看 每个update的lane 是否在root.renderlanes中。如果是，就代表优先级足够，应该在本次更新被执行。否则会被推迟到下一次更新过程中继续判断是否执行。
+    
     update.payload = payload;
     if (callback !== undefined && callback !== null) {
       if (__DEV__) {
@@ -200,15 +201,16 @@ const classComponentUpdater = {
       }
       update.callback = callback;
     }
-
+    //将当前setState产生的update对象放在fiber.updateQueue.shared.pending上。形成的是一个环形链表
     enqueueUpdate(fiber, update);
+    console.log('fiber pendingQue ====>',fiber.updateQueue.shared.pending);
     scheduleUpdateOnFiber(fiber, lane, eventTime);
   },
   enqueueReplaceState(inst, payload, callback) {
     const fiber = getInstance(inst);
     const eventTime = requestEventTime();
     const suspenseConfig = requestCurrentSuspenseConfig();
-    const lane = requestUpdateLane(fiber, suspenseConfig);
+    const lane = requestUpdateLane(fiber, suspenseConfig); 
 
     const update = createUpdate(eventTime, lane, suspenseConfig);
     update.tag = ReplaceState;

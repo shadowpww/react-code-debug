@@ -5,7 +5,7 @@ import './index.css'
 const Hooks = () => {
     const [num,setNum] = useState(0);
     useEffect(()=>{
-        debugger;
+        // debugger;
         console.log('num1',num);
         setNum(2);
         return ()=>{
@@ -18,10 +18,10 @@ const Hooks = () => {
         return ()=>{
             console.log('destroy');
         }
-    },[num])
+    },[num]);
     return <div className="hooks">
         {/*<UseState/>*/}
-        <UseEffect/>
+        {/* <UseEffect/> */}
     </div>
 }
 export default Hooks

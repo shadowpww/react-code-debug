@@ -200,17 +200,19 @@ if (
  //浏览器下的任务调度是由该函数完成的。
   const performWorkUntilDeadline = () => {
     if (scheduledHostCallback !== null) {
+          // 当前是有需要调度执行的任务的
       const currentTime = getCurrentTime();
       // Yield after `yieldInterval` ms, regardless of where we are in the vsync
       // cycle. This means there's always time remaining at the beginning of
       // the message event.
-      deadline = currentTime + yieldInterval;
+      // shouldYieldToHost会读取该字段，来决定是否交还控制权给浏览器（暂停任务），那似乎意思是单次宏任务的调度时间只有5ms？
+      deadline = currentTime + yieldInterval; 
       const hasTimeRemaining = true;
       // scheduledHostCallback 为 flushWork ，在还有剩余任务时，会返回true， 因此会继续进行下一次任务调度，从而继续执行performWorkUntilDeadLine
       try {
         const hasMoreWork = scheduledHostCallback(
-          hasTimeRemaining,
-          currentTime,
+          hasTimeRemaining,  // true
+          currentTime,  // 当前的时间，暂时认定为Date.now()
         );
         if (!hasMoreWork) {
           isMessageLoopRunning = false;
@@ -221,6 +223,7 @@ if (
           /*
           * 如果还有任务，那么继续发出一个消息执行performWorkUntilDeadline
           * */
+         console.log('来一个新的任务调度');
           port.postMessage(null);
         }
       } catch (error) {

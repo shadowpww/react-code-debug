@@ -7,6 +7,8 @@
  * @flow
  */
 import * as React from './src/React';
+
+import * as Scheduler from '../scheduler';
 // Keep in sync with https://github.com/facebook/flow/blob/master/lib/react.js
 export type StatelessFunctionalComponent<
   P,
@@ -84,5 +86,26 @@ export {
   unstable_createScope,
   unstable_useOpaqueIdentifier,
 } from './src/React';
+
+// Intentionally not named imports because Rollup would
+// use dynamic dispatch for CommonJS interop named imports.
+const {
+  unstable_scheduleCallback: scheduleCallback,
+  unstable_IdlePriority: IdlePriority,
+  unstable_ImmediatePriority:ImmediatePriority,
+  unstable_UserBlockingPriority:UserBlockingPriority,
+  unstable_NormalPriority:NormalPriority,
+   unstable_LowPriority:LowPriority,
+} = Scheduler;
+
+export {
+  scheduleCallback,
+  IdlePriority,
+  ImmediatePriority,
+  UserBlockingPriority,
+  NormalPriority,
+  LowPriority,
+} 
+ 
 
 export default React

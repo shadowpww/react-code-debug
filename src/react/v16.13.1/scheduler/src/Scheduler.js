@@ -106,7 +106,7 @@ function advanceTimers(currentTime) {
 
 function handleTimeout(currentTime) {
   isHostTimeoutScheduled = false;
-  advanceTimers(currentTime);
+  advanceTimers(currentTime); // 检查timerQueue任务队列中，是否存在过期的任务，有则挪动到taskQueue中。
 
   if (!isHostCallbackScheduled) {
     if (peek(taskQueue) !== null) {
@@ -163,7 +163,7 @@ function flushWork(hasTimeRemaining, initialTime) {
 
 function workLoop(hasTimeRemaining, initialTime) {
   let currentTime = initialTime;
-  advanceTimers(currentTime);
+  advanceTimers(currentTime);  // 检查延迟任务队列中的任务，将其放到过期任务队列中来执行。
   // console.log(JSON.parse(JSON.stringify(taskQueue)));
   currentTask = peek(taskQueue);
   while (
@@ -203,6 +203,7 @@ function workLoop(hasTimeRemaining, initialTime) {
           currentTask.isQueued = false;
         }
         if (currentTask === peek(taskQueue)) {
+          // 如果当前的任务的回调，并没有返回一个新的回调函数，那么就说明当前任务已经执行完成了，就可以从任务队列中，剔除该任务
           pop(taskQueue);
         }
       }
@@ -304,6 +305,7 @@ function timeoutForPriorityLevel(priorityLevel) {
 
 function unstable_scheduleCallback(priorityLevel, callback, options) {
   var currentTime = getCurrentTime();
+  console.log('currentTIme',currentTime,priorityLevel);
   // 确定当前时间 startTime 和延迟更新时间 timeout
   var startTime;
   var timeout;
@@ -322,6 +324,8 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
     timeout = timeoutForPriorityLevel(priorityLevel);
     startTime = currentTime;
   }
+  console.log('start>>>>>>>>>>>>>');
+  console.log('timeout',timeout,startTime);
 
   var expirationTime = startTime + timeout;
   var newTask = {
@@ -335,6 +339,7 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
   if (enableProfiling) {
     newTask.isQueued = false;
   }
+
   // 如果是延迟任务则将 newTask 放入延迟调度队列并执行 requestHostTimeout
   // 如果是正常任务则将 newTask 放入正常调度队列并执行 requestHostCallback
   if (startTime > currentTime) {
@@ -371,7 +376,10 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
       requestHostCallback(flushWork);
     }
   }
-
+  console.log('timerQueue',timerQueue,timerQueue.forEach((task)=>{console.log('timertask',task)}));
+  console.log('============');
+  console.log('taskQueue',taskQueue,taskQueue.forEach((task)=>{console.log('task',task)}));
+  console.log('end>>>>>>>>>>');
   return newTask;
 }
 

@@ -46,6 +46,20 @@ const menusList = [
   {name:'LifeCycle',
   path:'/LifeCycle',
   component:LifeCycle
+  },
+  {name:'SchedulerTask',
+  path:'/SchedulerTask',
+  component:SchedulerTask
+  },
+  {
+    name:'EventDemo',
+  path:'/EventDemo',
+  component:EventDemo
+  },
+  {
+    name:'TasksWithDifferentPriorities',
+  path:'/TasksWithDifferentPriorities',
+  component:TasksWithDifferentPriorities
   }
 ]
 

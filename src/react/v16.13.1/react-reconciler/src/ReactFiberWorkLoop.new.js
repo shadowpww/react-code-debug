@@ -419,7 +419,7 @@ export function requestUpdateLane(
   if (currentEventWipLanes === NoLanes) {
     currentEventWipLanes = workInProgressRootIncludedLanes;
   }
-
+  console.log('workInProgressRootIncludedLanes',workInProgressRootIncludedLanes);
   let lane;
   if (suspenseConfig !== null) {
     // Use the size of the timeout as a heuristic to prioritize shorter
@@ -470,12 +470,11 @@ export function scheduleUpdateOnFiber(
   eventTime: number,
 ) {
   console.log('本轮渲染的渲染优先级：', lane);
-  // 判断是否是无限循环的update
+  // 判断是否是无限循环的update，主要是依赖于计数器count，每次render就counter++ ；会在commitRoot执行后，归零count计数器。
   checkForNestedUpdates();
   warnAboutRenderPhaseUpdatesInDEV(fiber);
   // 从下往上，更新当前fiber到root路径上的所有节点的childLanes，并会将该优先级记录在root.pendingLanes上 
   const root = markUpdateLaneFromFiberToRoot(fiber, lane);
-  console.log(root);
   console.log('root.pendingLanes：', root.pendingLanes);
   if (root === null) {
     warnAboutUpdateOnUnmountedFiberInDEV(fiber);
@@ -485,6 +484,7 @@ export function scheduleUpdateOnFiber(
   // TODO: requestUpdateLanePriority also reads the priority. Pass the
   // priority as an argument to that function and this one.
   const priorityLevel = getCurrentPriorityLevel();
+  console.log('CurrentPriorityLevel',priorityLevel);
   // 获取到当前的优先级
   if (lane === SyncLane) {
     if (
@@ -543,7 +543,6 @@ export function scheduleUpdateOnFiber(
         rootsWithPendingDiscreteUpdates.add(root);
       }
     }
-    console.log('多次调用setState会走这里',lane);
     // Schedule other updates after in case the callback is sync.
     ensureRootIsScheduled(root, eventTime);
     schedulePendingInteractions(root, lane);
@@ -665,7 +664,7 @@ function markUpdateLaneFromFiberToRoot(
  * 只有一个任务；如果任务已经被调度，将进行校验
  * 以确保现有任务的过时间与root节点所处理的下
  * 一个级别的过期时间相同。在每次更新时以及退出
- * 任务之前都会调用此函数。
+ * 任务之前都会调用此函数。 
 * */
 function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
   // 先取到已经被调度的任务 existingCallbackNode是正在进行调度的任务
@@ -675,7 +674,7 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
   // 如果有被阻塞的优先级，标记到root.expiredLanes中，这样这些update就可以被立即处理了
   markStarvedLanesAsExpired(root, currentTime);
   // Determine the next lanes to work on, and their priority.
-  // 确定新更新任务的渲染优先级
+  // 确定新更新任务的渲染优先级 ，这个获取的是当前现有的所有任务中最高的任务的lane，因此和当前被任务优先级比较，要么更高（则会取消当前任务，重新调度），要么相等（复用当前任务的）
   const newCallbackId = getNextLanes(
     root,
     root === workInProgressRoot ? workInProgressRootRenderLanes : NoLanes,
@@ -689,7 +688,7 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
     // Special case: There's nothing to work on.
     // 不需要有所更新的话
     if (existingCallbackNode !== null) {
-      cancelCallback(existingCallbackNode);
+      cancelCallback(existingCallbackNode); // 本质上只是把 sheduler中任务队列（最小堆）上的对应的任务的回调置空，因为最小堆无法轻易去删除一个堆元素，置空回调开支最小
       root.callbackNode = null;
       root.callbackPriority = NoLanePriority;
       root.callbackId = NoLanes;
@@ -701,8 +700,8 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
   // 检查现有任务的渲染优先级
   const existingCallbackId = root.callbackId;
   const existingCallbackPriority = root.callbackPriority;
-  console.log('existingCallbackId',existingCallbackId,existingCallbackPriority);
-  console.log('newCallbackId',newCallbackId,newCallbackPriority);
+  console.log('existingCallbackId',existingCallbackId,"existingCallbackPriority",existingCallbackPriority);
+  console.log('newCallbackId',newCallbackId,"newCallbackPriority",newCallbackPriority);
   // console.log(newCallbackId, newCallbackPriority, existingCallbackId, existingCallbackPriority);
   if (existingCallbackId !== NoLanes) {
     if (newCallbackId === existingCallbackId) {
@@ -717,6 +716,7 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
       // callback. We'll schedule a new one below.
     }
     // 优先级变化了，取消之前的调度，然后在下边重新调度一个任务，实现高优先级插队
+    console.log('取消已经被调度的任务ex --- new',existingCallbackId,existingCallbackPriority,'---',newCallbackId,newCallbackPriority);
     cancelCallback(existingCallbackNode);
   }
   // Schedule a new callback.
@@ -729,7 +729,7 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
       performSyncWorkOnRoot.bind(null, root),
     );
   } else {
-    // 获取本次调度的优先级，它由本次更新的优先级计算得出
+    // 获取本次调度的优先级，它由本次更新的优先级计算得出 ，lane的优先级转换到 Sheduler的优先级
     const schedulerPriorityLevel = lanePriorityToSchedulerPriority(
       newCallbackPriority,
     );
