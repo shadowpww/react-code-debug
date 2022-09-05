@@ -2,11 +2,11 @@ import React from 'react'
 
 class Diff extends React.Component {
     state = {
-        arr: [1, 2]
+        arr: ["A", "B","C"]
     }
     add(){
         this.setState({
-            arr:[1,2,3]
+            arr:["A","C","B"]
         })
     }
     render() {

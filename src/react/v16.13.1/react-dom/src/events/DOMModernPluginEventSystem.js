@@ -235,6 +235,9 @@ function executeDispatchesInOrder(
 ): void {
   let previousInstance;
   // Dispatch capture phase first.
+  // 捕获事件是从后往前
+
+  console.log('capture',capture,'bubble',bubble);
   for (let i = capture.length - 1; i >= 0; i--) {
     const {instance, currentTarget, listener} = capture[i];
     if (instance !== previousInstance && event.isPropagationStopped()) {
@@ -245,6 +248,7 @@ function executeDispatchesInOrder(
   }
   previousInstance = undefined;
   // Dispatch bubble phase second.
+  // 冒泡事件是从前往后
   for (let i = 0; i < bubble.length; i++) {
     const {instance, currentTarget, listener} = bubble[i];
     if (instance !== previousInstance && event.isPropagationStopped()) {
@@ -319,7 +323,7 @@ export function listenToTopLevelEvent(
     listenerMapKey,
   );
   const shouldUpgrade = shouldUpgradeListener(listenerEntry, passive);
-
+  console.log('shouldUpgrade',shouldUpgrade,listenerMapKey);
   // If the listener entry is empty or we should upgrade, then
   // we need to trap an event listener onto the target.
   if (listenerEntry === undefined || shouldUpgrade) {
@@ -492,8 +496,10 @@ export function dispatchEventForPluginEventSystem(
   targetInst: null | Fiber,
   targetContainer: EventTarget,
 ): void {
+  // 触发事件的fiber节点（可能为实际dom对应的fiber节点/其祖先节点）
   let ancestorInst = targetInst;
   if (eventSystemFlags & IS_TARGET_PHASE_ONLY) {
+    // 如果该事件只需要在元素本身上执行。
     // For TargetEvent nodes (i.e. document, window)
     ancestorInst = null;
   } else {
@@ -619,6 +625,58 @@ function createDispatchQueueItem(
   };
 }
 
+// export function accumulateTwoPhaseListeners(
+//   targetFiber: Fiber | null,
+//   dispatchQueue: DispatchQueue,
+//   event: ReactSyntheticEvent,
+//   accumulateEventHandleListeners?: boolean,
+// ): void {
+//   const bubbled = event._reactName; // 获取原始的事件名称
+//   const captured = bubbled !== null ? bubbled + 'Capture' : null;
+//   const capturePhase: DispatchQueueItemPhase = [];
+//   const bubblePhase: DispatchQueueItemPhase = [];
+//   let instance = targetFiber;
+//   const targetType = event.type;
+//   // Accumulate all instances and listeners via the target -> root path.
+//   while (instance !== null) {
+//     const {stateNode, tag} = instance;
+//     // 只有当这个fiber节点的类型是 dom类型时候，才需要处理上面的事件处理函数
+//     if (tag === HostComponent && stateNode !== null) {
+//       const currentTarget = stateNode;
+//       lastHostComponent = currentTarget;
+//       if (captured !== null) {
+//         const captureListener = getListener(instance, captured);
+//         if (captureListener != null) {
+//           capturePhase.push(
+//             createDispatchQueueItemPhaseEntry(
+//               instance,
+//               captureListener,
+//               currentTarget,
+//             ),
+//           );
+//         }
+//       }
+//       if (bubbled !== null) {
+//         const bubbleListener = getListener(instance, bubbled);  // 这里就是我们写的 <div onClick="aaa"> 
+//         if (bubbleListener != null) { 
+//           bubblePhase.push(
+//             createDispatchQueueItemPhaseEntry(
+//               instance,
+//               bubbleListener,
+//               currentTarget,
+//             ),
+//           );
+//         }
+//       }
+//     } 
+//     instance = instance.return;
+//   }
+//   dispatchQueue.push(
+//       createDispatchQueueItem(event, capturePhase, bubblePhase),
+//   );
+// }
+
+
 export function accumulateTwoPhaseListeners(
   targetFiber: Fiber | null,
   dispatchQueue: DispatchQueue,
@@ -647,7 +705,6 @@ export function accumulateTwoPhaseListeners(
       // For Event Handle listeners
       if (enableCreateEventHandleAPI && accumulateEventHandleListeners) {
         const listeners = getEventHandlerListeners(currentTarget);
-
         if (listeners !== null) {
           const listenersArr = Array.from(listeners);
           for (let i = 0; i < listenersArr.length; i++) {
@@ -700,6 +757,7 @@ export function accumulateTwoPhaseListeners(
           );
         }
       }
+      console.log('current-fiber',currentTarget.className,{ bubblePhase,capturePhase});
     } else if (
       enableCreateEventHandleAPI &&
       enableScopeAPI &&

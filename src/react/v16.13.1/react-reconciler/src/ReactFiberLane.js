@@ -9,6 +9,17 @@
 
 import type {FiberRoot, ReactPriorityLevel} from './ReactInternalTypes';
 
+import invariant from 'shared/invariant';
+
+import {
+  ImmediatePriority as ImmediateSchedulerPriority,
+  UserBlockingPriority as UserBlockingSchedulerPriority,
+  NormalPriority as NormalSchedulerPriority,
+  LowPriority as LowSchedulerPriority,
+  IdlePriority as IdleSchedulerPriority,
+  NoPriority as NoSchedulerPriority,
+} from './SchedulerWithReactIntegration.new';
+
 export opaque type LanePriority =
   | 0
   | 1
@@ -30,17 +41,6 @@ export opaque type LanePriority =
 export opaque type Lanes = number;
 export opaque type Lane = number;
 export opaque type LaneMap<T> = Array<T>;
-
-import invariant from 'shared/invariant';
-
-import {
-  ImmediatePriority as ImmediateSchedulerPriority,
-  UserBlockingPriority as UserBlockingSchedulerPriority,
-  NormalPriority as NormalSchedulerPriority,
-  LowPriority as LowSchedulerPriority,
-  IdlePriority as IdleSchedulerPriority,
-  NoPriority as NoSchedulerPriority,
-} from './SchedulerWithReactIntegration.new';
 
 export const SyncLanePriority: LanePriority = 16;
 const SyncBatchedLanePriority: LanePriority = 15;

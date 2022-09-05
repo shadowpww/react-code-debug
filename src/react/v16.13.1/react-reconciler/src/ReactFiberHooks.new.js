@@ -557,6 +557,16 @@ export function resetHooksAfterThrow(): void {
   didScheduleRenderPhaseUpdateDuringThisPass = false;
 }
 
+/**
+ * 将函数组件中调用的hooks使用单向循环队列依次存储起来。
+ * @returns 返回一个新创建的 hook{ memoizedState: null,
+
+    baseState: null,
+    baseQueue: null,
+    queue: null,
+
+    next: null,}
+ */
 function mountWorkInProgressHook(): Hook {
   const hook: Hook = {
     memoizedState: null,
@@ -591,7 +601,7 @@ function updateWorkInProgressHook(): Hook {
   * 末尾时，必须切换用于挂载的dispatcher
   * */
 
-  // 其实主要作用就是更新work-in-progress hook 的指针
+  // 其实主要作用就是更新work-in-progress 的hook 的指针
   let nextCurrentHook: null | Hook;
   if (currentHook === null) {
     const current = currentlyRenderingFiber.alternate;
@@ -709,6 +719,7 @@ function updateReducer<S, I, A>(
   let baseQueue = current.baseQueue;
 
   // The last pending update that hasn't been processed yet.
+  // 会先合并该useState产生的hook对象上的baseQueue 和 pendding queue。
   const pendingQueue = queue.pending;
   if (pendingQueue !== null) {
     // We have new updates that haven't been processed yet.
@@ -739,7 +750,7 @@ function updateReducer<S, I, A>(
     const first = baseQueue.next;
     let newState = current.baseState;
 
-    let newBaseState = null;
+    let newBaseState = null;  //记录的会是，在碰到第一个优先级不够的update的前一次更新后的值。
     let newBaseQueueFirst = null;
     let newBaseQueueLast = null;
     let update = first;
@@ -751,6 +762,7 @@ function updateReducer<S, I, A>(
         // Priority is insufficient. Skip this update. If this is the first
         // skipped update, the previous update/state is the new base
         // update/state.
+        // 当对应的更新对象优先级不够时，需要跳过它，但是为了保证最后的状态正确性，需要将更新的lane记录下（暂时未找到读取的地方）
         const clone: Update<S, A> = {
           eventTime: updateEventTime,
           lane: updateLane,
@@ -762,7 +774,7 @@ function updateReducer<S, I, A>(
         };
         if (newBaseQueueLast === null) {
           newBaseQueueFirst = newBaseQueueLast = clone;
-          newBaseState = newState;
+          newBaseState = newState; 
         } else {
           newBaseQueueLast = newBaseQueueLast.next = clone;
         }
@@ -776,7 +788,8 @@ function updateReducer<S, I, A>(
         markSkippedUpdateLanes(updateLane);
       } else {
         // This update does have sufficient priority.
-
+         // update 的优先级足够时，并且前面已经有因为优先级不够而跳过的更新时，需要被记录到 baseQueue上，
+         // 因为后续的优先级不够的update重做时，需要在该次更新的结果上重做。
         if (newBaseQueueLast !== null) {
           const clone: Update<S, A> = {
             eventTime: updateEventTime,
@@ -813,8 +826,9 @@ function updateReducer<S, I, A>(
       }
       update = update.next;
     } while (update !== null && update !== first);
-
+ 
     if (newBaseQueueLast === null) {
+      // 不存在优先级不够被跳过的更新，因此最终计算出来的状态就是下一次的基准状态
       newBaseState = newState;
     } else {
       newBaseQueueLast.next = (newBaseQueueFirst: any);
@@ -1694,11 +1708,10 @@ function dispatchAction<S, A>(
       );
     }
   }
-
   const eventTime = requestEventTime();
   const suspenseConfig = requestCurrentSuspenseConfig();
-  const lane = requestUpdateLane(fiber, suspenseConfig);
 
+  const lane = requestUpdateLane(fiber, suspenseConfig);
   const update: Update<S, A> = {
     eventTime,
     lane,
@@ -1721,6 +1734,7 @@ function dispatchAction<S, A>(
   queue.pending = update;
 
   const alternate = fiber.alternate;
+  console.log('alternate', alternate && alternate.lanes,fiber.lanes);
   if (
     fiber === currentlyRenderingFiber ||
     (alternate !== null && alternate === currentlyRenderingFiber)
@@ -1730,6 +1744,7 @@ function dispatchAction<S, A>(
     // and apply the stashed updates on top of the work-in-progress hook.
     didScheduleRenderPhaseUpdateDuringThisPass = didScheduleRenderPhaseUpdate = true;
   } else {
+   
     if (
       fiber.lanes === NoLanes &&
       (alternate === null || alternate.lanes === NoLanes)

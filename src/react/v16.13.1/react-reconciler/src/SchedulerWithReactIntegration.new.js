@@ -161,6 +161,7 @@ export function scheduleSyncCallback(callback: SchedulerCallback) {
     // Flush the queue in the next tick, at the earliest.
     // 最快在下一次执行的时候刷新队列
     // 当前生成的调度任务
+    console.log('here');
     immediateQueueCallbackNode = Scheduler_scheduleCallback(
       // 因为是同步调度，所以赋予立即
       // 执行的高优先级
@@ -207,7 +208,7 @@ function flushSyncCallbackQueueImpl() {
     try {
       const isSync = true;
       const queue = syncQueue;
-      console.log('syncQueue',syncQueue);
+      console.log('syncQueue',)
       runWithPriority(ImmediatePriority, () => {
         for (; i < queue.length; i++) {
           // 这里的callback。就是 performSyncWorkOnRoot。

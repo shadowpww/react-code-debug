@@ -781,6 +781,7 @@ function updateFunctionComponent(
   // React DevTools reads this flag.
   workInProgress.effectTag |= PerformedWork;
   reconcileChildren(current, workInProgress, nextChildren, renderLanes);
+  console.log('current-------',current.lanes);
   return workInProgress.child;
 }
 
@@ -3122,7 +3123,8 @@ function beginWork(
   /*
   * 在第一次渲染时，root是第一次更新，所以它没有上一次更新的Fiber节点，但更新时就不一样了。
   * 表现在workInProgress树的构建过程中就是，第一次渲染时，除了rootFiber，其余的子节点要根据
-  * fiber.tag创建出来，更新时，如果fiber上无需更新，那么可以直接复用已有节点。
+  * fiber.tag创建出来
+  * 更新时，如果fiber上无需更新，那么可以直接复用已有节点。
   * */
   if (current !== null) {
     const oldProps = current.memoizedProps;
@@ -3520,7 +3522,7 @@ function beginWork(
     false,
     'Unknown unit of work tag (%s). This error is likely caused by a bug in ' +
       'React. Please file an issue.',
-    workInProgress.tag,
+    workInProgress.tag
   );
 }
 

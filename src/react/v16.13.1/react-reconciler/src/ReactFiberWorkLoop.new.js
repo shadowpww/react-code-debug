@@ -363,7 +363,9 @@ export function requestUpdateLane(
 ): Lane {
   // Special cases
   const mode = fiber.mode;
+  console.log('mode',mode);
   if ((mode & BlockingMode) === NoMode) {
+     // 我们经常使用的 React.render时，就会默认走这个模式。 因为这是的 root节点上的mode实际上是没有值的。
     return (SyncLane: Lane);
   } else if ((mode & ConcurrentMode) === NoMode) {
     return getCurrentPriorityLevel() === ImmediateSchedulerPriority
@@ -389,6 +391,7 @@ export function requestUpdateLane(
      * 自交叉事件。无论如何，此模式不受官方支持。这种行为只是一种退路。因为现有代码可能会意外地依赖
      * 于当前行为，所以该标志只在我们可以推出setState警告之前存在。
     * */
+  
     return pickArbitraryLane(workInProgressRootRenderLanes);
   }
 
@@ -415,7 +418,6 @@ export function requestUpdateLane(
    * 发的工作循环时。我们将对下面的' currentEventPendingLanes '做同样的操作。
    *
    * */
-
   if (currentEventWipLanes === NoLanes) {
     currentEventWipLanes = workInProgressRootIncludedLanes;
   }
@@ -447,7 +449,7 @@ export function requestUpdateLane(
     // TODO: If we're not inside `runWithPriority`, this returns the priority
     // of the currently running task. That's probably not what we want.
     const schedulerPriority = getCurrentPriorityLevel();
-
+  
     if (
       // TODO: Temporary. We're removing the concept of discrete updates.
       (executionContext & DiscreteEventContext) !== NoContext &&
@@ -464,13 +466,14 @@ export function requestUpdateLane(
   return lane;
 }
 
+
 export function scheduleUpdateOnFiber(
   fiber: Fiber,
   lane: Lane,
   eventTime: number,
 ) {
   console.log('本轮渲染的渲染优先级：', lane);
-  // 判断是否是无限循环的update，主要是依赖于计数器count，每次render就counter++ ；会在commitRoot执行后，归零count计数器。
+  // 判断是否是无限循环的update，主要是依赖于计数器count，每次调度更新就counter++ ；会在commitRoot执行后，归零count计数器。
   checkForNestedUpdates();
   warnAboutRenderPhaseUpdatesInDEV(fiber);
   // 从下往上，更新当前fiber到root路径上的所有节点的childLanes，并会将该优先级记录在root.pendingLanes上 
@@ -486,6 +489,7 @@ export function scheduleUpdateOnFiber(
   const priorityLevel = getCurrentPriorityLevel();
   console.log('CurrentPriorityLevel',priorityLevel);
   // 获取到当前的优先级
+  console.log('lane === SyncLane',lane === SyncLane);
   if (lane === SyncLane) {
     if (
       // Check if we're inside unbatchedUpdates
@@ -497,6 +501,7 @@ export function scheduleUpdateOnFiber(
       // 没处在渲染过程中，没有进行批量更新，在root
       // 上注册那些待处理的交互，来避免丢失已跟踪的
       // 交互数据
+      console.log('没有在批量更新');
       schedulePendingInteractions(root, lane);
       // This is a legacy edge case. The initial mount of a ReactDOM.render-ed
       // root inside of batchedUpdates should be synchronous, but layout updates
@@ -509,6 +514,7 @@ export function scheduleUpdateOnFiber(
       // 如被已经被调度了，则检查它的优先级有没有变化
       // 有变化，就取消上一个调度，重新安排一个调度任务
       // 没变化则直接退出
+      console.log('进行了在批量更新');
       ensureRootIsScheduled(root, eventTime);
       schedulePendingInteractions(root, lane);
       if (executionContext === NoContext) {
@@ -521,6 +527,7 @@ export function scheduleUpdateOnFiber(
          * 只有在执行上下文为空的时候，才去刷新同步回调队列，这样可以保证刚才调度的回调不会立即执行
          * */
         // 刷新同步回调队列
+        console.log('oooooooooooooooooo');
         flushSyncCallbackQueue();
       }
     }
@@ -710,6 +717,7 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
       // 新旧任务的优先级相等，且旧任务的优先级等于新任务的优先级，return ，不用对
       // 现有的新任务做插队操作，因为优先级相同
       if (existingCallbackPriority === newCallbackPriority) {
+        console.log('<<<<<<<<<复用更新任务<<><<<<<><<<<<<<<<');
         return;
       }
       // The task ID is the same but the priority changed. Cancel the existing
@@ -770,7 +778,7 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
 
   // Determine the next expiration time to work on, using the fields stored on the root.
   /*
-  * 获取渲染优先级
+  * 每次调度之前都要重新获取渲染优先级，因为避免在更新过程中有了更高优先级的更新，从而保证每次都是使用的最高优先级来进行的更新。
   * */
   let lanes = getNextLanes(
     root,
@@ -1223,6 +1231,10 @@ export function batchedEventUpdates<A, R>(fn: A => R, a: A): R {
   }
 }
 
+
+
+
+
 export function discreteUpdates<A, B, C, D, R>(
   fn: (A, B, C) => R,
   a: A,
@@ -1347,6 +1359,8 @@ function prepareFreshStack(root: FiberRoot, lanes: Lanes) {
   }
   workInProgressRoot = root;
   workInProgress = createWorkInProgress(root.current, null);
+  // workInProgressRootRenderLanes表示当前是否有任务正在执行，有值则表示有任务正在执行，反之则没有任务在执行。
+//  subtreeRenderLanes表示需要更新的fiber节点的lane的集合，在后面更新fiber节点的时候会根据这个值判断是否需要更新。
   workInProgressRootRenderLanes = subtreeRenderLanes = workInProgressRootIncludedLanes = lanes;
   workInProgressRootExitStatus = RootIncomplete;
   workInProgressRootFatalError = null;
@@ -2008,7 +2022,7 @@ function commitRootImpl(root, renderPriorityLevel) {
   // pending time is whatever is left on the root fiber.
   let remainingLanes = mergeLanes(finishedWork.lanes, finishedWork.childLanes);
   markRootFinished(root, remainingLanes);
-  console.log('更新完成后的渲染优先级（root.pendingLanes）：', root.pendingLanes);
+  console.log('更新完成后的渲染优先级（root.pendingLanes）：', root.pendingLanes,root.current);
   // Clear already finished discrete updates in case that a later call of
   // `flushDiscreteUpdates` starts a useless render pass which may cancels
   // a scheduled timeout.

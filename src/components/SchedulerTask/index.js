@@ -45,26 +45,27 @@ class SchedulerTask extends React.Component {
   }
   onBeginTask = () => {
     // setTimeout( () => this.setState( { count: this.state.count + 1 } ), 0 )
-    // console.log('scheduleCallback',scheduleCallback,IdlePriority);
-    // scheduleCallback(IdlePriority,(isOverTime)=>{
-    //   console.log('1.-------------------1',isOverTime);
-    // });
-    // let i = 0;
-    // function loop(){
-    //   if(i <1000){
-    //     console.log('2++++++++++.i',++i);
-    //     return loop;
-    //   }
-    //   return 'complete';
-    // }
-    // scheduleCallback(NormalPriority,loop);
-    // scheduleCallback(ImmediatePriority,()=>{
-    //   console.log('3.Z************ImmediatePriority 来执行了哦');
-    //   return ()=>{
-    //     console.log('3.continue--------------3-1');
-    //   }
-    // });
-    this.handleButtonClick();
+    console.log('scheduleCallback',scheduleCallback,IdlePriority);
+    scheduleCallback(IdlePriority,(isOverTime)=>{
+      console.log('1.-------------------1',isOverTime);
+    });
+    let i = 0;
+    function loop(){
+      if(i <1000){
+        console.log('2++++++++++.i',++i);
+        return loop;
+      }
+      return 'complete';
+    }
+    scheduleCallback(NormalPriority,loop);
+    scheduleCallback(ImmediatePriority,()=>{
+      console.log('3.Z************ImmediatePriority 来执行了哦');
+      return ()=>{
+        console.log('3.continue--------------3-1');
+      }
+    });
+
+    // this.handleButtonClick();
   }
 
   render() {

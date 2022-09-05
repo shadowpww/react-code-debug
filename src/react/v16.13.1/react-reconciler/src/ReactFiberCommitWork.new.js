@@ -486,7 +486,7 @@ function commitLifeCycles(
           recordLayoutEffectDuration(finishedWork);
         }
       } else {
-        commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
+        Mount(HookLayout | HookHasEffect, finishedWork);
       }
       // 填充useEffect的destroy回调数组
       schedulePassiveEffects(finishedWork);
@@ -1482,7 +1482,7 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
             recordLayoutEffectDuration(finishedWork);
           }
         } else {
-          commitHookEffectListUnmount(HookLayout | HookHasEffect, finishedWork);
+          Unmount(HookLayout | HookHasEffect, finishedWork);
         }
         return;
       }

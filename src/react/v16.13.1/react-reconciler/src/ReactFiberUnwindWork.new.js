@@ -44,7 +44,7 @@ import {transferActualDuration} from './ReactProfilerTimer.new';
 
 import invariant from 'shared/invariant';
 
-function unwindWork(workInProgress: Fiber, renderLanes: Lanes) {commitMutationEffectsImpl
+function unwindWork(workInProgress: Fiber, renderLanes: Lanes) {
   switch (workInProgress.tag) {
     case ClassComponent: {
       const Component = workInProgress.type;

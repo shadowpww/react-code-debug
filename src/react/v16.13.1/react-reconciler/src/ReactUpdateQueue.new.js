@@ -631,7 +631,7 @@ export function processUpdateQueue<State>(
           // 然后将这个高优先级放入本次的baseUpdate，实现之前提到的截取队列
           const clone: Update<State> = {
             eventTime: updateEventTime,
-            lane: NoLane,
+            lane: NoLane,  // 注意这里的lane变成了NoLane，因此在下一次processUpdateQueue时，这个更新时一定会被执行的。 因为 （任意数）& NoLane = Nolane， 所以一定会走到这里的else分支
             suspenseConfig: update.suspenseConfig,
             tag: update.tag,
             payload: update.payload,
@@ -694,7 +694,7 @@ export function processUpdateQueue<State>(
     queue.baseState = ((newBaseState: any): State);
     queue.firstBaseUpdate = newFirstBaseUpdate;
     queue.lastBaseUpdate = newLastBaseUpdate;
-    //将跳过的lane存储到fiber上，在ensureRootIsschedulerd方法中会重做低优先级的任务。 
+    // 将跳过的lane存储到fiber上，在ensureRootIsschedulerd方法中会重做低优先级的任务。 
     markSkippedUpdateLanes(newLanes);  
     workInProgress.lanes = newLanes;
     workInProgress.memoizedState = newState;

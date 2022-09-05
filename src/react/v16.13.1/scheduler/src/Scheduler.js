@@ -225,6 +225,26 @@ function workLoop(hasTimeRemaining, initialTime) {
   }
 }
 
+// var currentPriorityLevel = 0;
+
+// function runWithPriority(priorityLevel, eventHandler) {
+//   var previousPriorityLevel = currentPriorityLevel;
+//    currentPriorityLevel = priorityLevel;
+//    try {
+//     eventHandler();
+//    }finally {
+//     currentPriorityLevel= previousPriorityLevel
+//   }
+// }
+
+// //模拟实际场景下react处理后的事件处理函数
+// function test(){
+//   console.log('priority',currentPriorityLevel);
+// }
+
+// runWithPriority(1,test); 
+
+
 function unstable_runWithPriority(priorityLevel, eventHandler) {
   switch (priorityLevel) {
     case ImmediatePriority:
@@ -378,7 +398,7 @@ function unstable_scheduleCallback(priorityLevel, callback, options) {
   }
   console.log('timerQueue',timerQueue,timerQueue.forEach((task)=>{console.log('timertask',task)}));
   console.log('============');
-  console.log('taskQueue',taskQueue,taskQueue.forEach((task)=>{console.log('task',task)}));
+  console.log('taskQueue',taskQueue,taskQueue.forEach((task)=>{console.log('task',task,task.callback)}));
   console.log('end>>>>>>>>>>');
   return newTask;
 }

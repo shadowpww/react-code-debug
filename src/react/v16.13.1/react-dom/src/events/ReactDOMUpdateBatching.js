@@ -23,6 +23,15 @@ import {invokeGuardedCallbackAndCatchFirstError} from 'shared/ReactErrorUtils';
 let batchedUpdatesImpl = function(fn, bookkeeping) {
   return fn(bookkeeping);
 };
+
+// 真实的 discreteUpdatesImpl实现在'react-reconciler/src/ReactFiberReconciler' 中的discreteUpdates;
+// 实际上是因为执行了setBatchingImplementation().
+// setBatchingImplementation(
+//   batchedUpdates,
+//   discreteUpdates,  // 这里的discreteUpdates来自于'react-reconciler/src/ReactFiberReconciler'
+//   flushDiscreteUpdates,
+//   batchedEventUpdates,
+// );
 let discreteUpdatesImpl = function(fn, a, b, c, d) {
   return fn(a, b, c, d);
 };

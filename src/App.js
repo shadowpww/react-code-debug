@@ -10,7 +10,8 @@ import PropsDiff from './components/PropsDiff'
 import Hooks from "./components/Hooks";
 import EventDemo from "./components/EventDemo";
 import JSX from './components/JSX';
-import Test from './components/testGetDerivedLifeCycle';
+// import Test from './components/testGetDerivedLifeCycle';
+import Test from './components/test/index';
 import ContextDemo from "./components/Context";
 import LifeCycle from './components/LifeCycle';
 
@@ -19,7 +20,7 @@ import { renderRoutes } from 'react-router-config'
 import './App.css';
 
 // propsDiff
-/*class App extends React.Component {
+/*class App extends React.Component {m
   render() {
     return <PropsDiff/>
   }

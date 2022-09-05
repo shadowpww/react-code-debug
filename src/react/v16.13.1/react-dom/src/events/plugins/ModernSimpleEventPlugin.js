@@ -145,12 +145,15 @@ function extractEvents(
       EventConstructor = SyntheticEvent;
       break;
   }
+  // 根据事件类型，对应构造构造合成事件对象
   const event = new EventConstructor(
     reactName,
     null,
     nativeEvent,
     nativeEventTarget,
   );
+
+  console.log('event-合成事件对象',event);
 
   if (
     enableCreateEventHandleAPI &&
@@ -160,6 +163,7 @@ function extractEvents(
   ) {
     accumulateEventTargetListeners(dispatchQueue, event, targetContainer);
   } else {
+    // 模拟事件的捕获以及冒泡阶段 
     accumulateTwoPhaseListeners(targetInst, dispatchQueue, event, true);
   }
   return event;

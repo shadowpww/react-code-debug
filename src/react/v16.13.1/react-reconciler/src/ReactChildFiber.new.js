@@ -379,7 +379,7 @@ function ChildReconciler(shouldTrackSideEffects) {
     // This is simpler for the single child case. We only need to do a
     // placement for inserting new children.
     if (shouldTrackSideEffects && newFiber.alternate === null) {
-      newFiber.effectTag = Placement;
+      newFiber.effectTag = Placement;   //需要为新创建的fiber节点打上placement的标记。
     }
     return newFiber;
   }
@@ -808,7 +808,7 @@ function ChildReconciler(shouldTrackSideEffects) {
     // work on Iterables, we'd need to copy the whole set.
     /*
     * 即使有两个端点的优化，我们也希望优化很少变化的情况，并使用蛮力进行比较，而不是使用映
-    * 射。它会先在前进模式中探索路径，然后在我们注意到需要向前看时才去找地图。这不能处理反
+    * 射。它会先在前进模式中探索路径，然后在我们注意到需要向前看时才去找Map映射。这不能处理反
     * 转以及两个结束的搜索，但这是不寻常的。此外，为了使这两个结束的优化工作在迭代上，我们
     * 需要复制整个集合。
     * */
@@ -829,8 +829,8 @@ function ChildReconciler(shouldTrackSideEffects) {
       }
     }
     /*
-    * returnFiber：currentFirstChild的父级fiber节点
-    * currentFirstChild：当前执行更新任务的WIP（fiber）节点
+    * returnFiber：workInProgress树上的当前fiber节点。
+    * currentFirstChild：当前执行更新任务的WIP（fiber）节点对应的current树上的fiber节点的第一个孩子节点
     * newChildren：组件的render方法渲染出的新的ReactElement节点
     * lanes：优先级相关
     * */
@@ -895,6 +895,7 @@ function ChildReconciler(shouldTrackSideEffects) {
       }
       // 记录固定节点的位置
       lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
+
       // 将新fiber连接成以sibling为指针的单向链表
       if (previousNewFiber === null) {
         resultingFirstChild = newFiber;
@@ -1333,13 +1334,13 @@ function ChildReconciler(shouldTrackSideEffects) {
   // 该函数会在子节点上打上effect标签，然后在向上遍历的时候收集到side-effect列表上
   /*
   * newChild是组件render方法产生的ReactElement节点
-  * currentFirstChild是当前的workInProgress节点
-  * returnFiber是workInProgress节点的父节点
+  * currentFirstChild是页面渲染当前的current对应的节点
+  * returnFiber是workInProgress节点
   *
   * React diff算法做的事情就是将新产生的节点,和已有的节点比对.
   * */
   function reconcileChildFibers(
-    returnFiber: Fiber,
+    returnFiber: Fiber,   // 其实就是workInProgress fiber
     currentFirstChild: Fiber | null,
     newChild: any,
     lanes: Lanes,

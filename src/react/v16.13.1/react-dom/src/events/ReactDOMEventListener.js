@@ -94,7 +94,7 @@ export function createEventListenerWrapperWithPriority(
   eventSystemFlags: EventSystemFlags,
   priority?: EventPriority,
 ): Function {
-  // 其实在complteWork 中国这里的priority根本未传入值，因此这里一定走getEventPriorityForPluginSystem根据事件类别，计算出一个优先级出来
+  // 其实在complteWork 中这里的priority根本未传入值，因此这里一定走getEventPriorityForPluginSystem根据事件类别，计算出一个优先级出来
   const eventPriority =
     priority === undefined
       ? getEventPriorityForPluginSystem(topLevelType)
@@ -160,6 +160,8 @@ function dispatchUserBlockingUpdate(
     ),
   );
 }
+
+
 
 export function dispatchEvent(
   topLevelType: DOMTopLevelEventType,
@@ -266,8 +268,9 @@ export function attemptToDispatchEvent(
   nativeEvent: AnyNativeEvent,
 ): null | Container | SuspenseInstance {
   // TODO: Warn if _enabled is false.
-
+   // 顶层dom触发后，需要根据浏览器端的原始event对象e，找到对应触发事件的实际dom元素。这点很重要，因为React会需要根据这个实际触发dom元素，模拟构建出捕获阶段->DOM本身->冒泡阶段
   const nativeEventTarget = getEventTarget(nativeEvent);
+  // 返回对应的fiber节点。
   let targetInst = getClosestInstanceFromNode(nativeEventTarget);
 
   if (targetInst !== null) {

@@ -11,7 +11,7 @@ class OriginDemo extends React.Component {
   componentDidMount() {
     const button = this.buttonRef.current
     console.log('========== 手动注入了不同更新优先级的setState');
-    setTimeout( () => {this.setState( { count: 1 } );button.click()}, 500 )
+    setTimeout( () => {this.setState( { count: this.state.count+3} );button.click()}, 500 )
     //   A2是常规优先级的更新，A1是button.click()产生高优先级的更新。
     //   A后边的数字表示优先级，lane模型中，越小优先级越高，1 > 2。
     //   updateQueue：A2 - A1

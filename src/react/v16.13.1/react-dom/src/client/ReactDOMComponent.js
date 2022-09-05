@@ -359,6 +359,7 @@ function setInitialDOMProperties(
       // on server rendering (but we *do* want to emit it in SSR).
     } else if (registrationNameDependencies.hasOwnProperty(propKey)) {
       // 绑定事件
+      console.log('registrationNameDependencies',registrationNameDependencies,"propkey",propKey);
       if (nextProp != null) {
         if (__DEV__ && typeof nextProp !== 'function') {
           warnForInvalidEventListener(propKey, nextProp);
@@ -798,6 +799,7 @@ export function diffProperties(
     ) {
       // Noop
     } else if (registrationNameDependencies.hasOwnProperty(propKey)) {
+      console.log('registrationNameDependencies',registrationNameDependencies,propKey);
       if (nextProp != null) {
         // We eagerly listen to this even though we haven't committed yet.
         if (__DEV__ && typeof nextProp !== 'function') {
