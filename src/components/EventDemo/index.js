@@ -30,8 +30,8 @@ class EventDemo extends React.Component{
   onSubCounterClick = () => {
     console.log('子元素点击事件',this.childRef);
   }
-
   render() {
+    let src = `"/><script>alert('XSS');</script>`;
     const { count } = this.state;
     console.log('count=======',count);
     return <div
@@ -49,6 +49,7 @@ class EventDemo extends React.Component{
           子组件
         </div>
       </div>
+    <img src={src}/>
     </div>
   }
 }

@@ -1235,6 +1235,7 @@ export function batchedEventUpdates<A, R>(fn: A => R, a: A): R {
 
 
 
+//这里才是最终执行的离散事件的处理函数
 export function discreteUpdates<A, B, C, D, R>(
   fn: (A, B, C) => R,
   a: A,
@@ -2049,7 +2050,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     // we're committing now. This most commonly happens when a suspended root
     // times out.
   }
-
+  debugger;
   // Get the list of effects.
   let firstEffect;
   if (finishedWork.effectTag > PerformedWork) {

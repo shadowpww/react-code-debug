@@ -150,9 +150,7 @@ import {
   markDiscreteUpdatesExpired,
   markRootFinished,
   schedulerPriorityToLanePriority,
-  lanePriorityToSchedulerPriority,
-} from './ReactFiberLane';
-import {beginWork as originalBeginWork} from './ReactFiberBeginWork.old';
+  lanePriorityToSchedulerPriority,originalBeginWork} from './ReactFiberBeginWork.old';
 import {completeWork} from './ReactFiberCompleteWork.old';
 import {unwindWork, unwindInterruptedWork} from './ReactFiberUnwindWork.old';
 import {

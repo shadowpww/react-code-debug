@@ -569,7 +569,7 @@ export function resetHooksAfterThrow(): void {
  */
 function mountWorkInProgressHook(): Hook {
   const hook: Hook = {
-    memoizedState: null,
+    memoizedState: null,// useState中 保存 state信息 ｜ useEffect 中 保存着 effect 对象 ｜ useMemo 中 保存的是缓存的值和deps ｜ useRef中保存的是ref 对象
 
     baseState: null,
     baseQueue: null,
@@ -748,7 +748,7 @@ function updateReducer<S, I, A>(
   if (baseQueue !== null) {
     // We have a queue to process.
     const first = baseQueue.next;
-    let newState = current.baseState;
+    let newState = current.baseState; // 每次计算时，基准状态应该是上一次首次被跳过update前的state值
 
     let newBaseState = null;  //记录的会是，在碰到第一个优先级不够的update的前一次更新后的值。
     let newBaseQueueFirst = null;
@@ -840,8 +840,8 @@ function updateReducer<S, I, A>(
       markWorkInProgressReceivedUpdate();
     }
 
-    hook.memoizedState = newState;
-    hook.baseState = newBaseState;
+    hook.memoizedState = newState; // 当前更新优先级轮次下，计算出的hook状态。
+    hook.baseState = newBaseState; // 记录的是第一个被跳过的update的state状态。
     hook.baseQueue = newBaseQueueLast;
 
     queue.lastRenderedState = newState;
@@ -1265,7 +1265,7 @@ function mountEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
   const hook = mountWorkInProgressHook();
   const nextDeps = deps === undefined ? null : deps;
   currentlyRenderingFiber.effectTag |= fiberEffectTag;
-  // 将组件内的effect连成一个环，挂载到updateQueue中
+  // 将组件内的effect连成一个环，挂载到fiber.updateQueue中
   hook.memoizedState = pushEffect(
     HookHasEffect | hookEffectTag,
     create,
@@ -1296,7 +1296,7 @@ function updateEffectImpl(fiberEffectTag, hookEffectTag, create, deps): void {
   currentlyRenderingFiber.effectTag |= fiberEffectTag;
 
   hook.memoizedState = pushEffect(
-    HookHasEffect | hookEffectTag,
+    HookHasEffect | hookEffectTag, // 注意这里和上面依赖没变时的值是不一样的。在commit阶段，react会通过标签来判断，是否执行当前的 effect 函数。
     create,
     destroy,
     nextDeps,

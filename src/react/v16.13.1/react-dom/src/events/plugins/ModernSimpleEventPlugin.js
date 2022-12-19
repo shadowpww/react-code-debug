@@ -153,7 +153,7 @@ function extractEvents(
     nativeEventTarget,
   );
 
-  console.log('event-合成事件对象',event);
+  // console.log('event-合成事件对象',event);
 
   if (
     enableCreateEventHandleAPI &&

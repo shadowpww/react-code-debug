@@ -6,7 +6,7 @@ class Diff extends React.Component {
     }
     add(){
         this.setState({
-            arr:["A","C","B"]
+            arr:["A","B"]
         })
     }
     render() {

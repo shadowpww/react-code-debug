@@ -37,10 +37,10 @@ class NewDemo extends React.Component {
   //       // 示例 1 
   //   const button = this.buttonRef.current
   //   setTimeout(()=>{
+  //     button.click();
   //     this.setState( prevState => {
   //         return { count: prevState.count*4 }
   //     });
-  //     button.click();
   //   },1000);
   // }
 

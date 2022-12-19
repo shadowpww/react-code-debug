@@ -360,6 +360,7 @@ function ChildReconciler(shouldTrackSideEffects) {
         // This is a move.
         // 新节点需要往右移动
         newFiber.effectTag = Placement;
+        console.log('oldInxe======',oldIndex,newFiber,newFiber.effectTag);
         return lastPlacedIndex;
       } else {
         // This item can stay in place.
@@ -418,8 +419,9 @@ function ChildReconciler(shouldTrackSideEffects) {
       ) {
         // Move based on index
         // 基于旧fiber创建新的fiber节点
+        console.log('复用之前的节点',current,element);
         const existing = useFiber(current, element.props);
-
+        console.log('existing',existing);
         // 链接ref
         existing.ref = coerceRef(returnFiber, current, element);
         // 链接到父节点
@@ -1342,7 +1344,7 @@ function ChildReconciler(shouldTrackSideEffects) {
   function reconcileChildFibers(
     returnFiber: Fiber,   // 其实就是workInProgress fiber
     currentFirstChild: Fiber | null,
-    newChild: any,
+    newChild: any,  // newChild的类型其实是ReactElement类型，和他比较的其实是旧的fiber节点，类型是不一致的
     lanes: Lanes,
   ): Fiber | null {
     // This function is not recursive.

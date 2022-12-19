@@ -757,7 +757,6 @@ export function accumulateTwoPhaseListeners(
           );
         }
       }
-      console.log('current-fiber',currentTarget.className,{ bubblePhase,capturePhase});
     } else if (
       enableCreateEventHandleAPI &&
       enableScopeAPI &&

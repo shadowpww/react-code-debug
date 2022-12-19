@@ -385,7 +385,7 @@ function commitHookEffectListMount(tag: number, finishedWork: Fiber) {
 }
 
 function schedulePassiveEffects(finishedWork: Fiber) {
-  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any);
+  const updateQueue: FunctionComponentUpdateQueue | null = (finishedWork.updateQueue: any); //函数组件的 useEffect hook 是以链表的方式记录在fiber上的
   const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
   if (lastEffect !== null) {
     const firstEffect = lastEffect.next;
@@ -486,7 +486,7 @@ function commitLifeCycles(
           recordLayoutEffectDuration(finishedWork);
         }
       } else {
-        Mount(HookLayout | HookHasEffect, finishedWork);
+        commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
       }
       // 填充useEffect的destroy回调数组
       schedulePassiveEffects(finishedWork);
@@ -876,6 +876,9 @@ function commitUnmount(
   current: Fiber,
   renderPriorityLevel: ReactPriorityLevel,
 ): void {
+  // commitUnmount函数内对于该fiber节点执行一次unmount的生命周期，类组件是 componentWillUnMount， 函数组件是 useEffect 的销毁函数
+  
+  
   onCommitUnmount(current);
 
   switch (current.tag) {
@@ -995,7 +998,7 @@ function commitNestedUnmounts(
   // we do an inner loop while we're still inside the host node.
   let node: Fiber = root;
   while (true) {
-    // 遍历子节点，对每个子节点都执行一次卸载操作
+    // 深度遍历子节点，对每个子节点都触发一次卸载的生命周期函数
     commitUnmount(finishedRoot, node, renderPriorityLevel);
     // Visit children because they may contain more composite or host nodes.
     // Skip portals because commitUnmount() currently visits them recursively.
@@ -1537,7 +1540,7 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
       ) {
         try {
           startLayoutEffectTimer();
-          commitHookEffectListUnmount(HookLayout | HookHasEffect, finishedWork);
+          commitHookEfectListUnmount(HookLayout | HookHasEffect, finishedWork);
         } finally {
           recordLayoutEffectDuration(finishedWork);
         }
